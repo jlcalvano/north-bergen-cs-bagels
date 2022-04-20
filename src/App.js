@@ -5,8 +5,9 @@
 
  import Info from './components/Info';
  import Bagel from './components/Bagel';
-
- const steps = ['Info', 'Bagel', 'Demo', 'Done'];
+ import DemoQuestionnaire from './components/DemoQuestionnaire';
+ 
+ const steps = ['Info', 'Bagel', 'DemoQuestionnaire', 'Done'];
 
  function _renderStepContent(step) {
   switch (step) {
@@ -14,6 +15,8 @@
       return <Info/>;
     case 1:
       return <Bagel/>;
+    case 2:
+      return <DemoQuestionnaire/>;
     default:
       return <div>Not Found</div>;
   }
@@ -23,36 +26,54 @@
   const [activeStep, setActiveStep] = useState(0);
   const isLastStep = activeStep === steps.length - 1;
 
+  async function _submitForm(values, actions) {
+    setTimeout(() => {
+      console.log(JSON.stringify(values, null, 2));
+      actions.setSubmitting(false);
+      setActiveStep(activeStep + 1);
+    }, 400);
+    
+
+  }
+
   function _handleSubmit(values, actions) {
     if (isLastStep) {
-
+      _submitForm(values, actions)
     } else {
-      
-      setTimeout(() => {
-        console.log(JSON.stringify(values, null, 2));
-        setActiveStep(activeStep + 1);
-        actions.setSubmitting(false);
-        
-      }, 400);
+      setActiveStep(activeStep + 1);
+      actions.setTouched({});
+      actions.setSubmitting(false);
+
     }
   }
 
+  function _handleBack() {
+    setActiveStep(activeStep - 1);
+  }
 
 
   return (
-  <div className="container">
-     <h1 style={{paddingBottom:'50px',paddingTop:'10px'}}>NBHS Period 2 - Intro to Comp Sci Bagel Order</h1>
+  <div className="md:container md:mx-auto">
+     <h1 className="text-3xl font-bold underline">NBHS Period 2 - Intro to Comp Sci Bagel Order</h1>
      <Formik
        initialValues={{ name: '', email: '' }}
        onSubmit={_handleSubmit}
      >
        {({ isSubmitting }) => (
-        <Form>
+        <Form className="py-10">
         {_renderStepContent(activeStep)}
-        <div className="mb-3" style={{paddingTop:'100px'}}>
-            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-            {isLastStep ? 'Done' : 'Next'}
+        <div className="block py-10">
+            
+                  {activeStep !== 0 && (
+                    <button type="button" onClick={_handleBack} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                      Back
+                    </button>
+                  )}
+            
+            <button type="submit" className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" disabled={isSubmitting}>
+              {isLastStep ? 'Done' : 'Next'}
             </button>
+
         </div>
         </Form >
        )}
