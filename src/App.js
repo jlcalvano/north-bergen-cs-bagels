@@ -27,12 +27,12 @@
   const isLastStep = activeStep === steps.length - 1;
 
   async function _submitForm(values, actions) {
-    setTimeout(() => {
+
       console.log(JSON.stringify(values, null, 2));
       actions.setSubmitting(false);
-      setActiveStep(activeStep + 1);
-    }, 400);
-    
+      if (!isLastStep){
+        setActiveStep(activeStep + 1);
+      }
 
   }
 
