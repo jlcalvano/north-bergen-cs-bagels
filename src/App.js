@@ -140,7 +140,6 @@
           return (
             <Form className="py-5">
               {_renderStepContent(activeStep,values, errors)}
-              {activeStep}
               <div className="block py-10 space-x-1">
                   {activeStep !== 0 && (
                     <button type="button" onClick={_handleBack} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
