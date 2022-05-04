@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 export default [Yup.object().shape({
     name: Yup.string()
       .min(2, 'Too Short!')
-      .matches(/^.*\s\w.$/, 'First Name, Last Inital')
+      .matches(/^.*\s[a-zA-Z]{1}$/, 'First Name, Last Inital')
       .max(50, 'Too Long!')
       .required('Required'),
     passcode: Yup.string()

@@ -128,7 +128,7 @@
   return (
   <>
   <div className="container bg-white shadow-lg mx-auto w-full max-w-4xl px-10 bg-slate-100 rounded-xl py-10 mt-10">
-     <h1 className="text-3xl font-bold underline">NBHS Period 2 - Intro to Comp Sci Bagel Order</h1>
+     <h1 className="text-3xl font-bold underline">NBHS Period 2 - Web Development, Animations and Games</h1>
           <Formik
              initialValues={{ name: '',passcode: '', docId: '', bagel:'', bagelType:'', spreadType:'',demoType:''}}
              onSubmit={_handleSubmit}
