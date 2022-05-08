@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { Field } from 'formik'
 
 import { db } from '../firebase.config';
@@ -6,21 +6,31 @@ import { collection, where, query, getDocs} from "firebase/firestore";
 
 
 async function getData(passcode) {
-  console.log("running query");
-  console.log(passcode)
+/*   console.log("running query");
+  console.log(passcode) */
   const passcodesCollectionRef = collection(db, "passcodes")
   const q = query(passcodesCollectionRef, where('pass',"==", passcode));
   const querySnapshot = await getDocs(q);
   if (querySnapshot.size> 0){
-    return querySnapshot.docs[0].id;
+    return 'success';
   } else {
-    return 0;
+    return 'error';
   }
  
 }
 
+function validateMessage(message) {
+  if (message == 'success'){
+    return <h2 className="font-medium underline text-green-700 underline-offset-8">Valid Passcode!</h2>;
+  } else {
+    return <h2 className="font-medium underline text-red-700 underline-offset-8">Invalid Passcode!</h2>
+  }
+  
+}
+
 export default function Info(values) {
-  console.log(values);
+  const [documentStatus, setDocumentStatus] = useState('');
+  const [validate, setValidated] = useState(false);
   return (
     
     <React.Fragment>
@@ -36,8 +46,13 @@ export default function Info(values) {
           <div className="flex flex-row space-x-4">
             <Field type="text" className="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-red-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1" name="passcode" aria-label="code" aria-describedby="basic-addon2" />
             <button type="button" className="mt-1 border-red-30 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-1 rounded" onClick={()=> getData(values.values.passcode).then(res => {
-            alert(res);})}>Validate</button>
+                setDocumentStatus(res)
+                setValidated(true)
+            }).catch(setValidated(true))}>Validate</button>
           </div>
+          { validate &&
+              validateMessage(documentStatus)
+          }
           <div className="text-red-600">{values.errors.passcode}</div>
       </div>
         <div>

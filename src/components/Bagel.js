@@ -2,7 +2,6 @@ import React from 'react';
 import { Field } from 'formik';
 
 export default function Bagel(values) {
-  console.log(values.errors,values.values);
   return (
     <React.Fragment>
         <div className="flex-col space-y-10 ">

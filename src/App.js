@@ -3,7 +3,7 @@
  import { Formik, Form } from 'formik';
  
  import { db } from './firebase.config';
- import { collection, where, query, getDocs} from "firebase/firestore";
+ import {where, query, getDocs, collection, addDoc, doc, updateDoc, serverTimestamp} from "firebase/firestore";
 
  import validations from './validations';
 
@@ -33,12 +33,13 @@
  export default function Basic() {
   const [activeStep, setActiveStep] = useState(0);
   const [skipSteps, setSkipSteps] = useState([]);
+  const [submission, setSubmission] = useState('Not Submitted');
   const currentValidationSchema = validations[activeStep];
   const isLastStep = activeStep === steps.length - 1;
   
   async function getData(passcode) {
     //console.log("running query");
-    const passcodesCollectionRef = collection(db, "passcodes")
+    const passcodesCollectionRef = collection(db, "passcodes");
     const q = query(passcodesCollectionRef, where('pass',"==", passcode));
     const querySnapshot = await getDocs(q);
     if (querySnapshot.size> 0){
@@ -49,10 +50,38 @@
    
   }
 
-  function _submitForm(values, actions) {
-      console.log('submit to database')
-      console.log(JSON.stringify(values, null, 2));
-      actions.setSubmitting(false);
+  async function  _submitForm(values, actions) {
+      let docRef;
+      const passcodesCollectionRef = collection(db, "passcodes");
+      const q = query(passcodesCollectionRef, where('pass',"==", values.passcode));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.size> 0){
+
+        // Create Submission
+        try {
+          docRef = await addDoc(collection(db, "submissions"),{...values, docId: querySnapshot.docs[0].id, submittedDate: serverTimestamp()});
+        } catch {
+          setSubmission('already used!!');
+          console.log('already used!!');
+          return 
+        }
+
+        // Update Passcode to Used
+        await updateDoc(doc(db, "passcodes", querySnapshot.docs[0].id), {
+          used: true
+        });
+        
+        actions.setSubmitting(false);
+        setSubmission('Submitted Successfully!');
+        console.log('Submitted Successfully!');
+        return
+
+      } else {
+        setSubmission('Invalid Passcode');
+        console.log('Invalid Passcode');
+        return 
+      }
 
   }
 
@@ -103,7 +132,7 @@
     }
 
     if (isLastStep) {
-      _submitForm(values, actions)
+      _submitForm(values, actions);
       actions.setTouched({});
       actions.setSubmitting(false);
     }
@@ -140,7 +169,7 @@
           return (
             <Form className="py-5">
               {_renderStepContent(activeStep,values, errors)}
-              <div className="block py-10 space-x-1">
+              <div className="block py-10 space-x-1 space-y-5">
                   {activeStep !== 0 && (
                     <button type="button" onClick={_handleBack} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                       Back
@@ -150,6 +179,9 @@
                 <button type="submit" className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                   {isLastStep ? 'Done' : 'Next'}
                 </button>
+                <div>
+                  {isLastStep ? submission: '' }
+                </div>
 
             </div>
               
